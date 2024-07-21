@@ -90,12 +90,14 @@ const EditLink = ({ urlData, fetchUrl }) => {
       <DialogTrigger asChild>
         <Button
           title="Update Short Url"
-          size="icon"
+          size="sm"
           variant="icon"
           // onClick={() => setOpen(true)}
           disabled={updateLoading}
+          className="bg-inherit hover:bg-yellow-300 border border-yellow-700 text-yellow-700"
         >
-          <Pencil color="rgb(161 98 7)" />
+          Modify
+          <Pencil color="rgb(161 98 7)" size={16} className="ml-1" />
         </Button>
         {/* <Button className="rounded-full h-12 text-lg font-bold bg-yellow-300 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-500 hover:text-yellow-950">
           Update
@@ -108,98 +110,70 @@ const EditLink = ({ urlData, fetchUrl }) => {
           </DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        {/* <div className="flex justify-center items-center">
-            {formValues?.longUrl && (
-              <QRCode
-                ref={ref}
-                size={200}
-                value={`${import.meta.env.VITE_BASE_URL}/${
-                  formValues.customUrl || formValues?.short_url
-                }`}
-                bgColor="yellow"
-                fgColor="rgb(162, 98, 7)"
-                ecLevel="M"
-                qrStyle="dots"
-              />
-            )}
-          </div> */}
-
-        <Input
-          className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
-          id="title"
-          placeholder="Short Link's Title"
-          value={formValues.title}
-          onChange={handleChange}
-        />
-        {errors.title && (
-          <span className="text-sm text-destructive ml-5 -mt-3">
-            {errors.title}
-          </span>
-        )}
-        <Input
-          className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
-          id="longUrl"
-          placeholder="Enter your Loooong URL"
-          value={formValues.longUrl}
-          onChange={handleChange}
-        />
-        {errors.longUrl && (
-          <span className="text-sm text-destructive ml-5 -mt-3">
-            {errors.longUrl}
-          </span>
-        )}
-
-        {/* <Input
+        <form onSubmit={updateLink} className="flex flex-col gap-y-3">
+          <Input
             className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
-            id="short_url"
-            value={formValues.short_url}
+            id="title"
+            placeholder="Short Link's Title"
+            value={formValues.title}
             onChange={handleChange}
           />
-          {errors.short_url && (
+          {errors.title && (
             <span className="text-sm text-destructive ml-5 -mt-3">
-              {errors.short_url}
+              {errors.title}
             </span>
-          )} */}
-
-        {/* <div className="flex rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none ">
-            <span className="inline-flex items-center font-bold">trimrr.in/</span>
-            <input
-              value={formValues.customUrl}
-              onChange={handleChange}
-              type="text"
-              id="customUrl"
-              name="customUrl"
-              className="font-medium rounded-full h-full bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
-              placeholder=" custom url"
-            />
-          </div> */}
-        {error && <Error message={errors.message} />}
-        <DialogFooter className="sm:justify-start flex flex-row gap-x-2 mt-2">
-          <DialogClose asChild>
+          )}
+          <Input
+            className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
+            id="longUrl"
+            placeholder="Enter your Loooong URL"
+            value={formValues.longUrl}
+            onChange={handleChange}
+          />
+          {errors.longUrl && (
+            <span className="text-sm text-destructive ml-5 -mt-3">
+              {errors.longUrl}
+            </span>
+          )}
+          {error && <Error message={errors.message} />}
+          <DialogFooter className="sm:justify-start flex flex-row gap-x-2 mt-2">
+            <DialogClose asChild>
+              <Button
+                type="button"
+                className="rounded-md h-10 w-full text-lg font-bold bg-neutral-100 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-300 hover:text-yellow-950"
+                onClick={() => {
+                  setErrors({
+                    title: null,
+                    longUrl: null,
+                  });
+                }}
+              >
+                Close
+              </Button>
+            </DialogClose>
+            {/* <DialogClose asChild> */}
             <Button
-              type="button"
-              className="rounded-md h-10 w-full text-lg font-bold bg-neutral-100 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-300 hover:text-yellow-950"
-              onClick={() => {
-                setErrors({
-                  title: null,
-                  longUrl: null,
-                });
-              }}
-            >
-              Close
-            </Button>
-          </DialogClose>
-          <DialogClose asChild>
-            <Button
-              type="button"
+              type="submit"
               className=" h-10 w-full text-lg font-bold bg-yellow-400 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-500 hover:text-yellow-950"
-              onClick={updateLink}
-              disabled={updateLoading}
+              // disabled={updateLoading}
             >
-              {updateLoading ? <Loader size={10} color="white" /> : "Update"}
+              {updateLoading ? (
+                <>
+                  Updating
+                  <Loader
+                    strokeWidth={3}
+                    className="ml-2 animate-spin"
+                    size={20}
+                    color="rgb(161 98 7)"
+                  />
+                </>
+              ) : (
+                "Update"
+              )}
             </Button>
-          </DialogClose>
-        </DialogFooter>
+            {/* </DialogClose> */}
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   );

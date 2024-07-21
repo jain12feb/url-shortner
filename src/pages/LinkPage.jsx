@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
+  Calendar,
   CheckCheck,
   CircleAlert,
   Copy,
@@ -112,6 +113,7 @@ const LinkPage = () => {
     // Create an anchor element
     const anchor = document.createElement("a");
     anchor.href = imageUrl;
+    anchor.target = "_blank";
     anchor.download = fileName;
 
     // Append the anchor to the body
@@ -179,108 +181,132 @@ const LinkPage = () => {
     <>
       <div className="flex justify-between items-center my-5">
         <Button
-          size="icon"
+          size="sm"
           variant="icon"
           title="Back to dashboard"
           onClick={() => navigate("/dashboard")}
-          // className="my-5 ml-5 sm:ml-10 h-10 text-lg font-bold bg-yellow-400 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-500 hover:text-yellow-950"
+          className="bg-inherit hover:bg-yellow-300 border border-yellow-700 text-yellow-700"
         >
-          <Undo2 className="stroke-yellow-900" />
+          <Undo2 size={18} className="stroke-yellow-900 mr-1" />
+          Back
         </Button>
         {loadingDelete ? (
           <Loader className="animate-spin" size={5} color="rgb(161 98 7)" />
         ) : (
-          <div className="flex items-center">
+          <div className="flex items-center gap-x-2">
+            <EditLink urlData={url} fetchUrl={fetchUrl} />
             <Button
+              className="bg-inherit hover:bg-yellow-300 border border-yellow-700 text-yellow-700"
               title="Delete Short Url"
-              size="icon"
+              size="sm"
               variant="icon"
               onClick={() => setOpen(true)}
               disabled={loadingDelete}
             >
-              <Trash2 color="rgb(161 98 7)" />
+              Delete
+              <Trash2 size={18} color="rgb(161 98 7)" className="ml-1" />
             </Button>
-            <EditLink urlData={url} fetchUrl={fetchUrl} />
           </div>
         )}
       </div>
       <div className="flex gap-8 flex-col justify-between">
-        <div className="flex flex-col sm:flex-row justify-around items-center gap-8 rounded-lg sm:w-full">
-          <div className="flex flex-col gap-4">
-            <h1 className="text-5xl sm:text-7xl font-extrabold text-yellow-700">
+        <div className="flex flex-col sm:flex-row justify-around items-center md:items-start gap-8 rounded-lg sm:w-full">
+          <div className="flex flex-col gap-y-3">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-yellow-700">
               {url?.title}
             </h1>
-            <p className="text-base text-yellow-600 font-normal">
-              Created At: {moment(new Date(url?.created_at)).calendar()}
-            </p>
-            <div className="flex items-center gap-x-4">
+            <div className="flex items-center gap-1 text-sm text-yellow-600">
+              <Calendar size={18} className="stroke-yellow-600 ml-1" />
+              <p>{moment(new Date(url?.created_at)).calendar()}</p>
+            </div>
+            <div className="flex items-center gap-x-2">
               <a
                 href={BASE_URL + "/" + link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-1 text-lg sm:text-2xl text-yellow-600 font-bold hover:underline cursor-pointer "
+                className="flex items-center gap-1 text-yellow-600 font-bold hover:underline cursor-pointer "
               >
                 <Link2 className="p-1" />
-                {BASE_URL + "/" + link}
+                {"trimrr-pj.vercel.app" + "/" + link}
               </a>
-              {copied ? (
-                <CheckCheck className="stroke-yellow-600" />
-              ) : (
-                <Copy
-                  className="cursor-pointer stroke-yellow-600"
-                  onClick={() => {
-                    window.navigator.clipboard.writeText(BASE_URL + "/" + link);
-                    setCopied(true);
-                    setTimeout(() => {
-                      setCopied(false);
-                    }, 2000);
-                  }}
-                />
-              )}
+
+              <Button
+                size="sm"
+                className="bg-inherit hover:bg-yellow-300 border border-yellow-700 text-yellow-700"
+              >
+                {copied ? (
+                  <>
+                    <p className="text-yellow-700">Copied</p>
+                    <CheckCheck size={18} className="stroke-yellow-600 ml-2" />
+                  </>
+                ) : (
+                  <div
+                    className="flex items-center justify-center"
+                    onClick={() => {
+                      window.navigator.clipboard.writeText(
+                        "trimrr-pj.vercel.app" + "/" + link
+                      );
+                      setCopied(true);
+                      setTimeout(() => {
+                        setCopied(false);
+                      }, 2000);
+                    }}
+                  >
+                    <p className="text-yellow-700">Copy</p>
+                    <Copy
+                      size={18}
+                      className="cursor-pointer stroke-yellow-700 ml-2"
+                    />
+                  </div>
+                )}
+              </Button>
             </div>
             <a
               href={url?.original_url}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-base sm:text-lg flex items-center gap-1 hover:underline cursor-pointer font-semibold text-yellow-600"
+              className="flex items-center gap-1 hover:underline cursor-pointer font-semibold text-yellow-600"
             >
               <LinkIcon className="p-1" />
               {url?.original_url}
             </a>
           </div>
-          {/* <div className="flex flex-col justify-between gap-8 bg-yellow-200 text-yellow-700 border-none rounded-3xl"> */}
-          <Card className="bg-yellow-200 text-yellow-700 border-none rounded-3xl p-10 sm:p-9 text-center">
-            <CardHeader>
-              <CardTitle>Total Clicks</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CountUp
-                className="font-semibold text-4xl md:text-5xl"
-                end={stats?.length || 0}
-              />
-            </CardContent>
-          </Card>
-          {/* </div> */}
 
-          <div
-            className="flex flex-col justify-center items-center relative"
-            onMouseEnter={handleMouseEnter}
-            onMouseLeave={handleMouseLeave}
-          >
-            <img
-              src={url?.qr_code}
-              className="w-full self-center sm:self-start rounded-lg ring-2 ring-yellow-500 object-contain "
-              alt="QR Code"
-            />
-            {hovering && (
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-6 bg-white/75 rounded-lg text-yellow-700 h-full w-full justify-center items-center">
-                <Download
-                  size={40}
-                  className="cursor-pointer"
-                  onClick={downloadImage}
+          <div className="flex flex-col md:flex-row items-center gap-10">
+            {/* <div className="flex flex-col justify-between gap-8 bg-yellow-200 text-yellow-700 border-none rounded-3xl"> */}
+            <div className="w-[200px] h-[200px] flex flex-col justify-center items-center gap-4 bg-yellow-200 text-yellow-700 ring-2 ring-yellow-500 rounded-lg">
+              <p className="font-semibold text-xl">Total Clicks</p>
+              <div>
+                <CountUp
+                  className="font-semibold text-4xl md:text-5xl"
+                  end={stats?.length || 0}
                 />
               </div>
-            )}
+            </div>
+            {/* </div> */}
+
+            <div
+              className="flex flex-col justify-center items-center relative"
+              onMouseEnter={handleMouseEnter}
+              onMouseLeave={handleMouseLeave}
+            >
+              <img
+                src={url?.qr_code}
+                className="self-center sm:self-start rounded-lg ring-2 ring-yellow-500 object-contain"
+                alt="QR Code"
+                width="200px"
+                height="200px"
+              />
+              {hovering && (
+                <div
+                  onClick={downloadImage}
+                  className="cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 flex gap-2 bg-white/75 rounded-lg text-yellow-700 h-full w-full justify-center items-center"
+                >
+                  <p className="font-semibold text-xl">Download</p>
+                  <Download size={30} />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
