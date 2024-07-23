@@ -20,7 +20,7 @@ import { UrlState } from "@/context";
 import { createUrl } from "@/db/apiUrl";
 import { Link, Loader } from "lucide-react";
 
-function CreateLink() {
+function CreateLink({ urls }) {
   const { user } = UrlState();
 
   const navigate = useNavigate();
@@ -37,6 +37,11 @@ function CreateLink() {
     short_url: "",
   });
 
+  const [title, setTitle] = useState("");
+  const [longUrl, setLongUrl] = useState(longLink ? longLink : "");
+  const [customUrl, setCustomUrl] = useState("");
+  const [shorUrl, setShorUrl] = useState("");
+
   const schema = yup.object().shape({
     title: yup.string().required("Title is required"),
     longUrl: yup
@@ -46,20 +51,26 @@ function CreateLink() {
     customUrl: yup.string(),
   });
 
-  const handleChange = (e) => {
-    setFormValues({
-      ...formValues,
-      [e.target.id]: e.target.value,
-      short_url: Math.random().toString(36).substr(2, 6),
-    });
-  };
+  // const handleChange = (e) => {
+  //   setFormValues({
+  //     ...formValues,
+  //     [e.target.id]: e.target.value,
+  //     short_url: Math.random().toString(36).substr(2, 6),
+  //   });
+  // };
 
   const {
     loading,
     error,
     data,
     fn: fnCreateUrl,
-  } = useFetch(createUrl, { ...formValues, user_id: user.id });
+  } = useFetch(createUrl, {
+    title,
+    longUrl,
+    customUrl,
+    short_url: shorUrl,
+    user_id: user.id,
+  });
 
   useEffect(() => {
     if (error === null && data) {
@@ -69,9 +80,19 @@ function CreateLink() {
   }, [error, data]);
 
   const createNewLink = async () => {
-    setErrors([]);
+    setErrors({});
+    if (title === "" || longUrl === "" || shorUrl === "" || errors.customUrl) {
+      return;
+    }
     try {
-      await schema.validate(formValues, { abortEarly: false });
+      await schema.validate(
+        {
+          title,
+          longUrl,
+          customUrl,
+        },
+        { abortEarly: false }
+      );
 
       const canvas = ref.current.canvasRef.current;
       const blob = await new Promise((resolve) => canvas.toBlob(resolve));
@@ -88,18 +109,45 @@ function CreateLink() {
     }
   };
 
+  function handleCustomUrl(e) {
+    const { value } = e.target;
+    setCustomUrl(value);
+
+    if (value.length > 0) {
+      // const filteredUrls =
+      //   urls.length > 0 && urls.filter((v) => v.custom_url !== null);
+      // console.log("filteredUrls", filteredUrls);
+      const isCustomUrl =
+        urls.length > 0 &&
+        urls.some((v) => {
+          return v.custom_url === value || v.short_url === value;
+        });
+      console.log("isCustomUrl", isCustomUrl);
+      if (isCustomUrl) {
+        // setCustomUrl("");
+        setErrors({ customUrl: "Custom URL already exists." });
+      } else {
+        setErrors({ customUrl: null });
+      }
+    }
+  }
+
   return (
     <Dialog
       defaultOpen={longLink}
       onOpenChange={(res) => {
         if (!res) {
           setSearchParams({});
-          setFormValues({
-            ...formValues,
-            title: "",
-            longUrl: "",
-            short_url: "",
-          });
+          setTitle("");
+          setLongUrl("");
+          setShorUrl("");
+          setCustomUrl("");
+          // setFormValues({
+          //   ...formValues,
+          //   title: "",
+          //   longUrl: "",
+          //   short_url: "",
+          // });
           setErrors({
             title: null,
             longUrl: null,
@@ -120,13 +168,11 @@ function CreateLink() {
           <DialogDescription></DialogDescription>
         </DialogHeader>
         <div className="flex justify-center items-center">
-          {formValues?.longUrl && (
+          {longUrl && (
             <QRCode
               ref={ref}
               size={200}
-              value={`${import.meta.env.VITE_BASE_URL}/${
-                formValues.customUrl || formValues?.short_url
-              }`}
+              value={`${import.meta.env.VITE_BASE_URL}/${customUrl || shorUrl}`}
               bgColor="yellow"
               fgColor="rgb(162, 98, 7)"
               ecLevel="M"
@@ -139,8 +185,14 @@ function CreateLink() {
           className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
           id="title"
           placeholder="Short Link's Title"
-          value={formValues.title}
-          onChange={handleChange}
+          value={title}
+          onChange={(e) => {
+            setTitle(e.target.value);
+            setErrors({
+              ...errors,
+              title: null,
+            });
+          }}
         />
         {errors.title && (
           <span className="text-sm text-destructive ml-5 -mt-3">
@@ -150,9 +202,21 @@ function CreateLink() {
         <Input
           className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
           id="longUrl"
+          type="url"
           placeholder="Enter your Loooong URL"
-          value={formValues.longUrl}
-          onChange={handleChange}
+          value={longUrl}
+          onChange={(e) => {
+            setLongUrl(e.target.value);
+            if (longUrl.length > 0) {
+              setShorUrl(Math.random().toString(36).substr(2, 6));
+            } else {
+              setShorUrl("");
+            }
+            setErrors({
+              ...errors,
+              longUrl: null,
+            });
+          }}
         />
         {errors.longUrl && (
           <span className="text-sm text-destructive ml-5 -mt-3">
@@ -175,8 +239,9 @@ function CreateLink() {
         <div className="flex rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none ">
           <span className="inline-flex items-center font-bold">trimrr.in/</span>
           <input
-            value={formValues.customUrl}
-            onChange={handleChange}
+            disabled={!longUrl || !title || !!errors.longUrl || !!errors.title}
+            value={customUrl}
+            onChange={handleCustomUrl}
             type="text"
             id="customUrl"
             name="customUrl"
@@ -184,6 +249,11 @@ function CreateLink() {
             placeholder=" custom url"
           />
         </div>
+        {errors.customUrl && (
+          <span className="text-sm text-destructive ml-5 -mt-3">
+            {errors.customUrl}
+          </span>
+        )}
         {error && <Error message={errors.message} />}
         <DialogFooter className="sm:justify-start flex flex-row gap-x-2 mt-2">
           <DialogClose asChild>
@@ -191,12 +261,10 @@ function CreateLink() {
               type="button"
               className="rounded-md h-10 w-full text-lg font-bold bg-neutral-100 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-300 hover:text-yellow-950"
               onClick={() => {
-                setFormValues({
-                  ...formValues,
-                  title: "",
-                  longUrl: "",
-                  short_url: "",
-                });
+                setTitle("");
+                setLongUrl("");
+                setShorUrl("");
+                setCustomUrl("");
                 setErrors({
                   title: null,
                   longUrl: null,
@@ -210,7 +278,14 @@ function CreateLink() {
             type="button"
             className=" h-10 w-full text-lg font-bold bg-yellow-400 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-500 hover:text-yellow-950"
             onClick={createNewLink}
-            disabled={loading}
+            disabled={
+              loading ||
+              !longUrl ||
+              !title ||
+              !!errors.longUrl ||
+              !!errors.title ||
+              !!errors.customUrl
+            }
           >
             {loading ? <Loader size={10} color="white" /> : "Create"}
           </Button>

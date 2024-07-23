@@ -106,74 +106,72 @@ const EditLink = ({ urlData, fetchUrl }) => {
       <DialogContent className="max-w-2xl">
         <DialogHeader>
           <DialogTitle className="font-bold text-2xl">
-            Update Shorten Url
+            Edit Shorten Url
           </DialogTitle>
           <DialogDescription></DialogDescription>
         </DialogHeader>
-        <form onSubmit={updateLink} className="flex flex-col gap-y-3">
-          <Input
-            className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
-            id="title"
-            placeholder="Short Link's Title"
-            value={formValues.title}
-            onChange={handleChange}
-          />
-          {errors.title && (
-            <span className="text-sm text-destructive ml-5 -mt-3">
-              {errors.title}
-            </span>
-          )}
-          <Input
-            className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
-            id="longUrl"
-            placeholder="Enter your Loooong URL"
-            value={formValues.longUrl}
-            onChange={handleChange}
-          />
-          {errors.longUrl && (
-            <span className="text-sm text-destructive ml-5 -mt-3">
-              {errors.longUrl}
-            </span>
-          )}
-          {error && <Error message={errors.message} />}
-          <DialogFooter className="sm:justify-start flex flex-row gap-x-2 mt-2">
-            <DialogClose asChild>
-              <Button
-                type="button"
-                className="rounded-md h-10 w-full text-lg font-bold bg-neutral-100 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-300 hover:text-yellow-950"
-                onClick={() => {
-                  setErrors({
-                    title: null,
-                    longUrl: null,
-                  });
-                }}
-              >
-                Close
-              </Button>
-            </DialogClose>
-            {/* <DialogClose asChild> */}
+        <Input
+          className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
+          id="title"
+          placeholder="Short Link's Title"
+          value={formValues.title}
+          onChange={handleChange}
+        />
+        {errors.title && (
+          <span className="text-sm text-destructive ml-5 -mt-3">
+            {errors.title}
+          </span>
+        )}
+        <Input
+          className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
+          id="longUrl"
+          placeholder="Enter your Loooong URL"
+          value={formValues.longUrl}
+          onChange={handleChange}
+        />
+        {errors.longUrl && (
+          <span className="text-sm text-destructive ml-5 -mt-3">
+            {errors.longUrl}
+          </span>
+        )}
+        {error && <Error message={errors.message} />}
+        <DialogFooter className="sm:justify-start flex flex-row gap-x-2 mt-2">
+          <DialogClose asChild>
             <Button
-              type="submit"
-              className=" h-10 w-full text-lg font-bold bg-yellow-400 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-500 hover:text-yellow-950"
-              // disabled={updateLoading}
+              type="button"
+              className="rounded-md h-10 w-full text-lg font-bold bg-neutral-100 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-300 hover:text-yellow-950"
+              onClick={() => {
+                setErrors({
+                  title: null,
+                  longUrl: null,
+                });
+              }}
             >
-              {updateLoading ? (
-                <>
-                  Updating
-                  <Loader
-                    strokeWidth={3}
-                    className="ml-2 animate-spin"
-                    size={20}
-                    color="rgb(161 98 7)"
-                  />
-                </>
-              ) : (
-                "Update"
-              )}
+              Close
             </Button>
-            {/* </DialogClose> */}
-          </DialogFooter>
-        </form>
+          </DialogClose>
+          {/* <DialogClose asChild> */}
+          <Button
+            onClick={updateLink}
+            className=" h-10 w-full text-lg font-bold bg-yellow-400 text-yellow-900 border-2 border-yellow-500 hover:bg-yellow-500 hover:text-yellow-950"
+            disabled={updateLoading}
+          >
+            {updateLoading ? (
+              <>
+                Updating
+                <Loader
+                  strokeWidth={3}
+                  className="ml-2 animate-spin"
+                  size={20}
+                  color="rgb(161 98 7)"
+                />
+              </>
+            ) : (
+              "Update"
+            )}
+          </Button>
+          {/* </DialogClose> */}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

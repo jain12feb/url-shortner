@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { Loader, Search } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Loader, Search, X } from "lucide-react";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -11,11 +11,24 @@ import LinkCard from "@/components/LinkCard";
 import CreateLink from "@/components/CreateLink";
 import Error from "@/components/Error";
 import CountUp from "react-countup";
+import { useDebouncedCallback } from "use-debounce";
 
 const Dashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { user } = UrlState();
   const { loading, error, data: urls, fn: fnUrls } = useFetch(getUrls, user.id);
+
+  const ref1 = useRef("");
+  const ref2 = useRef("");
+
+  const debounced = useDebouncedCallback(
+    (value) => {
+      setSearchQuery(value);
+    },
+    500,
+    // The maximum time func is allowed to be delayed before it's invoked:
+    { maxWait: 2000 }
+  );
 
   const {
     loading: loadingClicks,
@@ -81,33 +94,61 @@ const Dashboard = () => {
         <div className="flex items-center gap-x-4">
           <div className="hidden lg:block relative min-w-[400px]">
             <Input
+              ref={ref1}
               className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
               type="text"
               placeholder="Search by url's title..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              defaultValue=""
+              onChange={(e) => debounced(e.target.value)}
             />
-            <Search
-              className="text-yellow-700 absolute top-2 right-3 p-1"
-              size={35}
-            />
+            {searchQuery !== "" ? (
+              <X
+                onClick={() => {
+                  debounced.cancel();
+                  debounced.flush();
+                  setSearchQuery("");
+                  ref1.current.value = "";
+                }}
+                className="text-yellow-700 absolute top-2 right-3 p-1 cursor-pointer"
+                size={35}
+              />
+            ) : (
+              <Search
+                className="text-yellow-700 absolute top-2 right-3 p-1"
+                size={35}
+              />
+            )}
           </div>
 
-          <CreateLink />
+          <CreateLink urls={urls} />
         </div>
       </div>
       <div className="block lg:hidden relative">
         <Input
+          ref={ref2}
           className="font-medium rounded-full h-full flex-1 p-4 text-base  bg-yellow-200 text-yellow-900 placeholder:text-yellow-600 ring-0 focus:ring-0 shadow-none focus:shadow-none focus:outline-none border-none focus:border-none "
           type="text"
           placeholder="Search by url's title..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          defaultValue=""
+          onChange={(e) => debounced(e.target.value)}
         />
-        <Search
-          className="text-yellow-700 absolute top-2 right-3 p-1"
-          size={35}
-        />
+        {searchQuery !== "" ? (
+          <X
+            onClick={() => {
+              debounced.cancel();
+              debounced.flush();
+              setSearchQuery("");
+              ref2.current.value = "";
+            }}
+            className="text-yellow-700 absolute top-2 right-3 p-1 cursor-pointer"
+            size={35}
+          />
+        ) : (
+          <Search
+            className="text-yellow-700 absolute top-2 right-3 p-1"
+            size={35}
+          />
+        )}
       </div>
       {error && <Error message={error?.message} />}
       {filteredUrls && filteredUrls.length > 0 ? (
