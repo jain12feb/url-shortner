@@ -221,6 +221,7 @@ const LinkPage = () => {
             </div>
             <div className="flex items-center gap-x-2">
               <a
+                title={"trimrr-pj.vercel.app" + "/" + link}
                 href={BASE_URL + "/" + link}
                 target="_blank"
                 rel="noopener noreferrer"
@@ -231,6 +232,7 @@ const LinkPage = () => {
               </a>
 
               <Button
+                title="Copy Short Url"
                 size="sm"
                 className="bg-inherit hover:bg-yellow-300 border border-yellow-700 text-yellow-700"
               >
@@ -261,15 +263,21 @@ const LinkPage = () => {
                 )}
               </Button>
             </div>
-            <a
-              href={url?.original_url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-1 hover:underline cursor-pointer font-semibold text-yellow-600"
+            <div
+              title={url?.original_url}
+              className="flex items-center gap-x-2"
             >
-              <LinkIcon className="p-1" />
-              {url?.original_url}
-            </a>
+              <a
+                href={url?.original_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="max-w-[600px] flex items-center gap-1 hover:underline cursor-pointer font-semibold text-yellow-600"
+              >
+                <LinkIcon className="p-1" />
+                {url?.original_url.slice(0, 30)}
+                {url?.original_url.length > 30 && <>...</>}
+              </a>
+            </div>
           </div>
 
           <div className="flex flex-col md:flex-row items-center gap-10">
